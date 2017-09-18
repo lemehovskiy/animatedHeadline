@@ -49,6 +49,13 @@
                 });
             }
 
+            window.onfocus = function () {
+                animation(full_interval_ms);
+            };
+            window.onblur = function () {
+                clearInterval(animation_interval);
+            };
+
             //init call
             animation(full_interval_ms);
 
