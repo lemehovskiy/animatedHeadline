@@ -3,7 +3,7 @@ animatedBrackets
 
 ### Demo
 
-[https://lemehovskiy.github.io/animatedBrackets/demo](https://lemehovskiy.github.io/animatedHeadline/demo/)
+[https://lemehovskiy.github.io/animatedHeadline/demo](https://lemehovskiy.github.io/animatedHeadline/demo/)
 
 
 ### Browser support
