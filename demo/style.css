@@ -105,7 +105,9 @@ section {
       position: absolute;
       left: 0;
       top: 0;
-      display: inline-block; }
+      width: 100%;
+      display: inline-block;
+      text-align: center; }
       .section-intro .animated-headline b.active {
         position: relative; }
 

@@ -35,6 +35,11 @@
 
 
             function  set_width() {
+
+                $this.css({
+                    width: 'auto'
+                })
+
                 let width_arr = $this.find('b').map(function () {
                     return Math.round($(this).width());
                 }).get();

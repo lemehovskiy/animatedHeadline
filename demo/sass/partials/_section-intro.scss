@@ -29,13 +29,14 @@
     perspective: 3000px;
     display: inline-block;
 
-
     b {
       white-space: nowrap;
       position: absolute;
       left: 0;
       top: 0;
+      width: 100%;
       display: inline-block;
+      text-align: center;
 
       &.active {
         position: relative;
