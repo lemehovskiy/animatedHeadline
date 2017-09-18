@@ -23,12 +23,12 @@
             var $current = void 0,
                 $next = void 0;
             var animation_interval = void 0;
-            var options_updated = false;
+            var full_interval_ms = (settings.duration + settings.autoplaySpeed) * 1000;
 
             TweenLite.set($this.find('b:not(.active)'), { autoAlpha: 0 });
 
             //init call
-            animation((settings.duration + settings.autoplaySpeed) * 1000);
+            animation(full_interval_ms);
 
             function animation(interval) {
 
@@ -50,43 +50,12 @@
                     $current.removeClass('active');
                     $next.addClass('active');
 
-                    item_options = $current.data('animated-headline-item');
-
-                    console.log(item_options);
-
-                    //
-                    //
-                    // // alert({duration: 0.5} === {})
-                    //
-                    // console.log('interval');
-                    //
-                    // console.log(item_options);
-                    //
-                    //
-                    // //check for item settings
-
-                    // if (item_options != undefined) {
-                    //
-                    //     settings = $.extend(settings, item_options);
-                    //
-                    //     animation((settings.duration + settings.autoplaySpeed) * 1000);
-                    //
-                    //     options_updated = true;
-                    //
-                    //     console.log('statement');
-                    //
-                    //     return;
-                    // }
-
-
                     TweenLite.to($current, settings.duration, { rotationX: 90, y: 25, autoAlpha: 0 });
                     TweenLite.fromTo($next, settings.duration, { rotationX: -90, y: -25 }, {
                         rotationX: 0,
                         y: 0,
                         autoAlpha: 1
                     });
-
-                    options_updated = false;
                 }, interval);
             }
         });
