@@ -27,6 +27,21 @@
 
             TweenLite.set($this.find('b:not(.active)'), { autoAlpha: 0 });
 
+            $(window).on('load resize', function () {
+                console.log('asdfa');
+                set_width();
+            });
+
+            function set_width() {
+                var width_arr = $this.find('b').map(function () {
+                    return Math.round($(this).width());
+                }).get();
+
+                $this.css({
+                    width: Math.max.apply(null, width_arr) + 'px'
+                });
+            }
+
             //init call
             animation(full_interval_ms);
 

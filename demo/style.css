@@ -97,15 +97,15 @@ section {
         font-size: 8.33333vw; } }
   .section-intro .animated-headline {
     position: relative;
-    width: 150px;
     -webkit-perspective: 3000px;
     perspective: 3000px;
     display: inline-block; }
     .section-intro .animated-headline b {
+      white-space: nowrap;
       position: absolute;
       left: 0;
       top: 0;
-      display: block; }
+      display: inline-block; }
       .section-intro .animated-headline b.active {
         position: relative; }
 

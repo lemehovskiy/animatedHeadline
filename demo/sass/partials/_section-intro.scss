@@ -26,15 +26,16 @@
 
   .animated-headline {
     position: relative;
-    width: 150px;
     perspective: 3000px;
     display: inline-block;
 
+
     b {
+      white-space: nowrap;
       position: absolute;
       left: 0;
       top: 0;
-      display: block;
+      display: inline-block;
 
       &.active {
         position: relative;
