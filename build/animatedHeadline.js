@@ -24,12 +24,14 @@
                 $next = void 0;
             var animation_interval = void 0;
             var full_interval_ms = (settings.duration + settings.autoplaySpeed) * 1000;
+            var items_height = void 0;
 
             TweenLite.set($this.find('b:not(.active)'), { autoAlpha: 0 });
 
             $(window).on('load resize', function () {
-                console.log('asdfa');
                 set_width();
+
+                items_height = $this.find('b').outerHeight();
             });
 
             function set_width() {
@@ -65,8 +67,8 @@
                     $current.removeClass('active');
                     $next.addClass('active');
 
-                    TweenLite.to($current, settings.duration, { rotationX: 90, y: 25, autoAlpha: 0 });
-                    TweenLite.fromTo($next, settings.duration, { rotationX: -90, y: -25 }, {
+                    TweenLite.to($current, settings.duration, { rotationX: 90, y: items_height / 2, autoAlpha: 0 });
+                    TweenLite.fromTo($next, settings.duration, { rotationX: -90, y: -items_height / 2 }, {
                         rotationX: 0,
                         y: 0,
                         autoAlpha: 1
