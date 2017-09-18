@@ -98,8 +98,8 @@ section {
   .section-intro .animated-headline {
     position: relative;
     width: 150px;
-    -webkit-perspective: 1400px;
-    perspective: 1400px;
+    -webkit-perspective: 3000px;
+    perspective: 3000px;
     display: inline-block; }
     .section-intro .animated-headline b {
       position: absolute;
