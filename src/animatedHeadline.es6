@@ -11,7 +11,7 @@
     $.fn.animatedHeadline = function (options) {
 
         let general_settings = $.extend({
-            duration: 0.7,
+            duration: 0.5,
             autoplay_speed: 2,
             center_mode: false
         }, options);
@@ -23,16 +23,18 @@
                 $slide_items = $this.find('b'),
                 items_height,
                 slides = [],
-                current_index = 0,
+                current_index,
                 loop_interval;
-
 
             init();
 
             function init (){
 
-                //init not active
+                //hide not active
                 TweenLite.set($this.find('b:not(.active)'), {autoAlpha: 0});
+
+                //set init index
+                current_index = $this.find('b.active').index();
 
                 //generate items arr
                 $slide_items.each(function () {

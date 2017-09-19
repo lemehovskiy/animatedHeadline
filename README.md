@@ -1,10 +1,43 @@
-animatedBrackets
+animatedHeadline
 -------
 
 ### Demo
 
 [https://lemehovskiy.github.io/animatedHeadline/demo](https://lemehovskiy.github.io/animatedHeadline/demo/)
 
+### Settings
+
+Option | Type | Default
+--- | --- | ---
+duration | int | .5
+autoplay_speed | int | 2
+center_mode | bool | false
+
+Example:
+
+```html
+
+<span class="animated-headline">
+    <b class="active">
+        rolor
+    </b>
+    <b>
+        color
+    </b>
+    <b>
+        nolor
+    </b>
+</span>
+
+<script>
+    $('.animated-headline').animatedHeadline({
+        duration: 1,
+        autoplay_speed: 3,
+        center_mode: true
+    });
+</script>
+
+```
 
 ### Browser support
 
@@ -17,3 +50,4 @@ animatedBrackets
 ### Dependencies
 
 * jQuery 1.7
+* Gsap
