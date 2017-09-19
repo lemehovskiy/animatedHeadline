@@ -105,9 +105,14 @@ section {
       position: absolute;
       left: 0;
       top: 0;
-      width: 100%;
       display: inline-block;
       text-align: center; }
+      .section-intro .animated-headline b span {
+        position: relative;
+        left: 50%;
+        -webkit-transform: translateX(-50%);
+        -ms-transform: translateX(-50%);
+        transform: translateX(-50%); }
       .section-intro .animated-headline b.active {
         position: relative; }
 

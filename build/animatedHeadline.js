@@ -13,7 +13,7 @@
     $.fn.animatedHeadline = function (options) {
 
         var general_settings = $.extend({
-            duration: 2,
+            duration: 1,
             autoplay_speed: 2
         }, options);
 
@@ -50,13 +50,17 @@
                 $(window).on('load resize', function () {
                     set_width();
 
-                    items_height = $this.find('b').outerHeight();
+                    items_height = $slide_items.outerHeight();
                 });
 
                 run_interval(slides[0].settings.autoplay_speed);
             }
 
             function set_width() {
+
+                $slide_items.css({
+                    width: 'auto'
+                });
 
                 $this.css({
                     width: 'auto'
@@ -68,6 +72,10 @@
 
                 $this.css({
                     width: Math.max.apply(null, width_arr) + 'px'
+                });
+
+                $slide_items.css({
+                    width: '100%'
                 });
             }
 
