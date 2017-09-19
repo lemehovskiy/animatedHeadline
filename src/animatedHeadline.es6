@@ -1,6 +1,6 @@
 /*
 
- animatedBrackets
+ animatedHeadline
 
  Author: lemehovskiy
 
@@ -10,35 +10,59 @@
 
     $.fn.animatedHeadline = function (options) {
 
-        let settings = $.extend({
-            duration: 0.5,
-            autoplaySpeed: 2
+        let general_settings = $.extend({
+            duration: 2,
+            autoplay_speed: 2
         }, options);
 
 
         $(this).each(function () {
 
-            let $this = $(this);
-            let $current, $next;
-            let animation_interval;
-            let full_interval_ms = (settings.duration + settings.autoplaySpeed) * 1000;
-            let items_height;
-
-            TweenLite.set($this.find('b:not(.active)'), {autoAlpha: 0});
-
-
-            $(window).on('load resize', function(){
-                set_width();
-
-                items_height = $this.find('b').outerHeight();
-            });
+            let $this = $(this),
+                $slide_items = $this.find('b'),
+                items_height,
+                slides = [],
+                current_index = 0,
+                loop_interval;
 
 
-            function  set_width() {
+            init();
+
+            function init (){
+
+                //init not active
+                TweenLite.set($this.find('b:not(.active)'), {autoAlpha: 0});
+
+                //generate items arr
+                $slide_items.each(function () {
+
+                    let $this_item = $(this);
+
+                    let slide = {};
+
+                    slide.settings = $.extend({}, general_settings, $this_item.data('animated-headline-item'));
+
+                    slide.element = $this_item;
+
+                    slides.push(slide);
+
+                });
+
+                $(window).on('load resize', function () {
+                    set_width();
+
+                    items_height = $this.find('b').outerHeight();
+                });
+
+                run_interval(slides[0].settings.autoplay_speed);
+            }
+
+
+            function set_width() {
 
                 $this.css({
                     width: 'auto'
-                })
+                });
 
                 let width_arr = $this.find('b').map(function () {
                     return Math.round($(this).width());
@@ -50,52 +74,74 @@
                 })
             }
 
+            function run_interval(interval) {
 
-            window.onfocus = function () {
-                animation(full_interval_ms);
-            };
-            window.onblur = function () {
-                clearInterval(animation_interval);
-            };
+                clearInterval(loop_interval);
 
-            //init call
-            animation(full_interval_ms);
-
-            function animation(interval) {
+                loop_interval = setInterval(function () {
 
 
-                //clear current interval
-                clearInterval(animation_interval);
+                    update_current_index();
 
-                animation_interval = setInterval(function () {
+                    let item_interval = slides[current_index].settings.autoplay_speed + slides[current_index].settings.duration;
 
-                    let item_options;
-
-
-                    $current = $this.find('b.active');
-
-                    $next = $current.next();
-
-                    if (!$next.length) {
-                        $next = $this.find("b:first");
+                    if (interval != item_interval) {
+                        run_interval(item_interval);
                     }
 
-
-                    $current.removeClass('active');
-                    $next.addClass('active');
-
-
-                    TweenLite.to($current, settings.duration, {rotationX: 90, y: items_height / 2, autoAlpha: 0});
-                    TweenLite.fromTo($next, settings.duration, {rotationX: -90, y: -items_height / 2}, {
-                        rotationX: 0,
-                        y: 0,
-                        autoAlpha: 1
+                    show_item({
+                        element: slides[current_index].element,
+                        duration: slides[current_index].settings.duration
+                    });
+                    hide_item({
+                        element: slides[get_prev_index(current_index)].element,
+                        duration: slides[current_index].settings.duration
                     });
 
-
-                }, interval);
+                }, interval * 1000);
 
             }
+
+
+            function show_item(settings) {
+
+                settings.element.addClass('active');
+
+                TweenLite.fromTo(settings.element, settings.duration, {rotationX: 90, y: -items_height / 2}, {
+                    rotationX: 0,
+                    y: 0,
+                    autoAlpha: 1
+                });
+            }
+
+            function hide_item(settings) {
+
+                settings.element.removeClass('active');
+
+                TweenLite.to(settings.element, settings.duration, {rotationX: -90, y: items_height / 2, autoAlpha: 0});
+            }
+
+
+            function update_current_index() {
+
+                if (current_index == slides.length - 1) {
+                    current_index = 0;
+                }
+
+                else {
+                    current_index++;
+                }
+            }
+
+            function get_prev_index(prev_index) {
+                if (prev_index == 0) {
+                    return slides.length - 1;
+                }
+                else {
+                    return prev_index - 1;
+                }
+            }
+
 
         });
 

@@ -97,8 +97,8 @@ section {
         font-size: 8.33333vw; } }
   .section-intro .animated-headline {
     position: relative;
-    -webkit-perspective: 3000px;
-    perspective: 3000px;
+    -webkit-perspective: 1000px;
+    perspective: 1000px;
     display: inline-block; }
     .section-intro .animated-headline b {
       white-space: nowrap;
