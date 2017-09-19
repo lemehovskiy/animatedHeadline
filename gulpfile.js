@@ -36,6 +36,27 @@ gulp.task('styles', function () {
 
 });
 
+gulp.task('plugin_styles', function () {
+
+    gulp.task('plugin_styles', function () {
+        return gulp.src('./src/animatedHeadline.scss')
+            .pipe(plumber({
+                errorHandler: notify.onError("Error: <%= error.message %>")
+            }))
+            .pipe(sourcemaps.init())
+            .pipe(sass())
+            .pipe(autoprefixer({
+                browsers: ['last 5 versions'],
+                cascade: false
+            }))
+            .pipe(sourcemaps.write('/'))
+            .pipe(gulp.dest('./build'))
+            .pipe(notify("Plugin styles task complete"));
+    });
+
+});
+
+
 
 gulp.task('scripts', function() {
     return streamqueue({ objectMode: true },
@@ -61,7 +82,8 @@ gulp.task('scripts', function() {
 });
 
 // configure which files to watch and what tasks to use on file changes
-gulp.task('watch', ['styles', 'scripts'], function() {
+gulp.task('watch', ['styles', 'scripts', 'plugin_styles'], function() {
     gulp.watch('demo/sass/**/*.scss', ['styles']);
     gulp.watch('src/animatedHeadline.es6', ['scripts']);
+    gulp.watch('src/animatedHeadline.scss', ['plugin_styles']);
 });

@@ -8,7 +8,9 @@
     <meta name="description" content="Animated headline">
     <meta name="keywords" content="responsive jQuery plugin Greensock Gsap animation headline">
 
+    <link rel="stylesheet" href="../build/animatedHeadline.css">
     <link rel="stylesheet" href="style.css">
+
 
 </head>
 
@@ -51,7 +53,18 @@
             <li class="feature-item">
                 <div class="content-col">
                     <div class="title">
-                        Lorem ipsum
+                        Lorem
+                        <span class="animated-headline">
+                            <b class="active">
+                                ipsum
+                            </b>
+                            <b>
+                                color
+                            </b>
+                            <b>
+                                wulor
+                            </b>
+                        </span>
                     </div>
                     <div class="desc">
                         <p>
@@ -77,7 +90,18 @@
             <li class="feature-item">
                 <div class="content-col">
                     <div class="title">
-                        Lorem ipsum
+                        Lorem
+                        <span class="animated-headline">
+                            <b class="active">
+                                dolor
+                            </b>
+                            <b>
+                                color
+                            </b>
+                            <b>
+                                bolor
+                            </b>
+                        </span>
                     </div>
                     <div class="desc">
                         <p>
@@ -103,7 +127,18 @@
             <li class="feature-item">
                 <div class="content-col">
                     <div class="title">
-                        Lorem ipsum
+                        Lorem
+                        <span class="animated-headline">
+                            <b class="active">
+                                rolor
+                            </b>
+                            <b>
+                                color
+                            </b>
+                            <b>
+                                nolor
+                            </b>
+                        </span>
                     </div>
                     <div class="desc">
                         <p>
@@ -141,7 +176,12 @@
 
 <script>
 
-    $('.section-intro .animated-headline').animatedHeadline();
+    $('.section-intro .animated-headline').animatedHeadline({
+        center_mode: true
+    });
+
+    $('.feature-item .animated-headline').animatedHeadline();
+
 
 
 </script>

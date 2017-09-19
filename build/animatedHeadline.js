@@ -13,8 +13,9 @@
     $.fn.animatedHeadline = function (options) {
 
         var general_settings = $.extend({
-            duration: 1,
-            autoplay_speed: 2
+            duration: 0.7,
+            autoplay_speed: 2,
+            center_mode: false
         }, options);
 
         $(this).each(function () {
@@ -58,9 +59,11 @@
 
             function set_width() {
 
-                $slide_items.css({
-                    width: 'auto'
-                });
+                if (general_settings.center_mode) {
+                    $slide_items.css({
+                        width: 'auto'
+                    });
+                }
 
                 $this.css({
                     width: 'auto'
@@ -74,9 +77,11 @@
                     width: Math.max.apply(null, width_arr) + 'px'
                 });
 
-                $slide_items.css({
-                    width: '100%'
-                });
+                if (general_settings.center_mode) {
+                    $slide_items.css({
+                        width: '100%'
+                    });
+                }
             }
 
             function run_interval(interval) {

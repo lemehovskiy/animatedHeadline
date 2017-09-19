@@ -23,29 +23,4 @@
     padding: 50px;
     @include vw-font-size(600, 50);
   }
-
-  .animated-headline {
-    position: relative;
-    perspective: 1000px;
-    display: inline-block;
-
-    b {
-      white-space: nowrap;
-      position: absolute;
-      left: 0;
-      top: 0;
-      display: inline-block;
-      text-align: center;
-
-      span {
-        position: relative;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-
-      &.active {
-        position: relative;
-      }
-    }
-  }
 }

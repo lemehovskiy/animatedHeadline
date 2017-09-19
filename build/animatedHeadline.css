@@ -1,0 +1,16 @@
+.animated-headline {
+  position: relative;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+  display: inline-block; }
+  .animated-headline b {
+    white-space: nowrap;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    text-align: center; }
+    .animated-headline b.active {
+      position: relative; }
+
+/*# sourceMappingURL=animatedHeadline.css.map */
