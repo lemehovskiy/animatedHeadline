@@ -5,6 +5,13 @@ animatedHeadline
 
 [https://lemehovskiy.github.io/animatedHeadline/demo](https://lemehovskiy.github.io/animatedHeadline/demo/)
 
+### Package Managers
+
+```sh
+# NPM
+npm install animated_headline
+```
+
 ### Settings
 
 Option | Type | Default
