@@ -2,7 +2,7 @@
   "name": "animated_headline",
   "version": "1.0.1",
   "description": "animated headline",
-  "main": "index.js",
+  "main": "build/animatedHeadline.js",
   "dependencies": {
     "jquery": ">=1.7",
     "gsap": "1.20.2"
