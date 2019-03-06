@@ -8,6 +8,7 @@ export const animate = {
             TweenLite.fromTo(props.$element, props.duration,
                 {
                     rotationX: 90, y: -props.slideHeight / 2
+
                 },
                 {
                     rotationX: 0,

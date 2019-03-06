@@ -12302,7 +12302,7 @@ __webpack_require__(2);
                 this.hideSlide({
                     $element: currentSlide.$element,
                     duration: nextSlide.settings.duration,
-                    animationType: nextSlide.settings.animationType
+                    animationType: currentSlide.settings.animationType
                 });
 
                 this.updateCurrentIndex(nextSlideIndex);
@@ -12381,6 +12381,7 @@ var animate = exports.animate = {
         'in': function _in(props) {
             TweenLite.fromTo(props.$element, props.duration, {
                 rotationX: 90, y: -props.slideHeight / 2
+
             }, {
                 rotationX: 0,
                 y: 0,

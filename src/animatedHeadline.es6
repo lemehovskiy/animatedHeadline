@@ -155,7 +155,7 @@ import {getNextSlideIndex, animate} from './helpers.es6';
             this.hideSlide({
                 $element: currentSlide.$element,
                 duration: nextSlide.settings.duration,
-                animationType: nextSlide.settings.animationType
+                animationType: currentSlide.settings.animationType
             });
 
             this.updateCurrentIndex(nextSlideIndex);
