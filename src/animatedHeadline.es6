@@ -18,9 +18,13 @@ import {getNextSlideIndex, animate} from './helpers.es6';
             //extend by function call
             this.settings = $.extend(true, {
                 slideSettings: {
-                    duration: 0.5,
                     autoplaySpeed: 1,
-                    animationType: 'rotate'
+                    animation: {
+                        type: 'rotate',
+                        duration: 0.5,
+                        delay: 0
+                    }
+
                 }
             }, options);
 
@@ -34,6 +38,7 @@ import {getNextSlideIndex, animate} from './helpers.es6';
             this.state = {
                 slides: [],
                 currentSlideIndex: 0,
+                prevSlideIndex: undefined,
                 slideHeight: 0,
                 autoPlayInterval: undefined
             };
@@ -54,19 +59,25 @@ import {getNextSlideIndex, animate} from './helpers.es6';
                 self.onResize();
             });
 
-            this.startAutoPlay(this.state.slides[0].settings.autoplaySpeed);
+            this.initAutoPlay();
+
         }
 
-        onResize(){
+        initAutoPlay(){
+            let slide = this.state.slides[0];
+            this.startAutoPlay(slide.settings.autoplaySpeed + slide.settings.animation.duration);
+        }
+
+        onResize() {
             this.updateWidth();
             this.state.slideHeight = this.$elementItems.outerHeight();
         }
 
-        initCurrentSlideIndex(){
+        initCurrentSlideIndex() {
             this.state.currentSlideIndex = this.$element.find('b.active').index();
         }
 
-        initSlideItems(){
+        initSlideItems() {
             let self = this;
 
             let slides = [];
@@ -80,9 +91,6 @@ import {getNextSlideIndex, animate} from './helpers.es6';
                 slide.$element = $(this);
                 slides.push(slide);
             });
-
-            console.log(slides);
-
             this.state.slides = slides;
         }
 
@@ -117,25 +125,25 @@ import {getNextSlideIndex, animate} from './helpers.es6';
             let self = this;
 
             this.state.autoPlayInterval = setInterval(function () {
-                let currentSlide = self.state.slides[self.state.currentSlideIndex];
-                let slideItemInterval = currentSlide.settings.autoplaySpeed + currentSlide.settings.duration;
+                const nextSlideIndex = getNextSlideIndex(self.state.currentSlideIndex, self.state.slides.length);
+                const slide = self.state.slides[nextSlideIndex];
+                const slideItemInterval = slide.settings.autoplaySpeed + slide.settings.animation.duration;
 
                 if (interval != slideItemInterval) {
                     self.stopAutoPlay();
                     self.startAutoPlay(slideItemInterval);
                 }
 
-                self.showNextAutoPlaySlide();
+                self.showNextAutoPlaySlide(nextSlideIndex);
 
             }, interval * 1000);
         }
 
-        stopAutoPlay(){
+        stopAutoPlay() {
             clearInterval(this.state.autoPlayInterval)
         }
 
-        showNextAutoPlaySlide(){
-            const nextSlideIndex = getNextSlideIndex(this.state.currentSlideIndex, this.state.slides.length);
+        showNextAutoPlaySlide(nextSlideIndex) {
             let currentSlide = this.state.slides[this.state.currentSlideIndex];
             let nextSlide = this.state.slides[nextSlideIndex];
 
@@ -146,44 +154,46 @@ import {getNextSlideIndex, animate} from './helpers.es6';
             })
         }
 
-        goToSlide({currentSlide, nextSlide, nextSlideIndex}){
+        goToSlide({currentSlide, nextSlide, nextSlideIndex}) {
             this.showSlide({
                 $element: nextSlide.$element,
-                duration: nextSlide.settings.duration,
-                animationType: nextSlide.settings.animationType
+                duration: nextSlide.settings.animation.duration,
+                animation: nextSlide.settings.animation
             });
             this.hideSlide({
                 $element: currentSlide.$element,
-                duration: nextSlide.settings.duration,
-                animationType: currentSlide.settings.animationType
+                duration: nextSlide.settings.animation.duration,
+                animation: currentSlide.settings.animation
             });
 
-            this.updateCurrentIndex(nextSlideIndex);
+            this.updateIndex(nextSlideIndex);
         }
 
-        showSlide({$element, duration, animationType}) {
+        showSlide({$element, duration, animation}) {
             $element.addClass('active');
 
-            animate[animationType].in({
+            animate[animation.type].in({
                 $element: $element,
                 duration: duration,
-                slideHeight: this.state.slideHeight
+                slideHeight: this.state.slideHeight,
+                animation: animation
             });
         }
 
-
-        hideSlide({$element, duration, animationType}) {
+        hideSlide({$element, duration, animation}) {
             $element.removeClass('active');
 
-            animate[animationType].out({
+            animate[animation.type].out({
                 $element: $element,
                 duration: duration,
-                slideHeight: this.state.slideHeight
+                slideHeight: this.state.slideHeight,
+                animation: animation
             });
         }
 
-        updateCurrentIndex(index) {
-           this.state.currentSlideIndex = index
+        updateIndex(index) {
+            this.state.prevSlideIndex = this.state.currentSlideIndex;
+            this.state.currentSlideIndex = index
         }
     }
 

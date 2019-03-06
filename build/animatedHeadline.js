@@ -110,9 +110,13 @@ __webpack_require__(2);
             //extend by function call
             this.settings = $.extend(true, {
                 slideSettings: {
-                    duration: 0.5,
                     autoplaySpeed: 1,
-                    animationType: 'rotate'
+                    animation: {
+                        type: 'rotate',
+                        duration: 0.5,
+                        delay: 0
+                    }
+
                 }
             }, options);
 
@@ -126,6 +130,7 @@ __webpack_require__(2);
             this.state = {
                 slides: [],
                 currentSlideIndex: 0,
+                prevSlideIndex: undefined,
                 slideHeight: 0,
                 autoPlayInterval: undefined
             };
@@ -148,7 +153,13 @@ __webpack_require__(2);
                     self.onResize();
                 });
 
-                this.startAutoPlay(this.state.slides[0].settings.autoplaySpeed);
+                this.initAutoPlay();
+            }
+        }, {
+            key: 'initAutoPlay',
+            value: function initAutoPlay() {
+                var slide = this.state.slides[0];
+                this.startAutoPlay(slide.settings.autoplaySpeed + slide.settings.animation.duration);
             }
         }, {
             key: 'onResize',
@@ -177,9 +188,6 @@ __webpack_require__(2);
                     slide.$element = $(this);
                     slides.push(slide);
                 });
-
-                console.log(slides);
-
                 this.state.slides = slides;
             }
         }, {
@@ -215,15 +223,16 @@ __webpack_require__(2);
                 var self = this;
 
                 this.state.autoPlayInterval = setInterval(function () {
-                    var currentSlide = self.state.slides[self.state.currentSlideIndex];
-                    var slideItemInterval = currentSlide.settings.autoplaySpeed + currentSlide.settings.duration;
+                    var nextSlideIndex = (0, _helpers.getNextSlideIndex)(self.state.currentSlideIndex, self.state.slides.length);
+                    var slide = self.state.slides[nextSlideIndex];
+                    var slideItemInterval = slide.settings.autoplaySpeed + slide.settings.animation.duration;
 
                     if (interval != slideItemInterval) {
                         self.stopAutoPlay();
                         self.startAutoPlay(slideItemInterval);
                     }
 
-                    self.showNextAutoPlaySlide();
+                    self.showNextAutoPlaySlide(nextSlideIndex);
                 }, interval * 1000);
             }
         }, {
@@ -233,8 +242,7 @@ __webpack_require__(2);
             }
         }, {
             key: 'showNextAutoPlaySlide',
-            value: function showNextAutoPlaySlide() {
-                var nextSlideIndex = (0, _helpers.getNextSlideIndex)(this.state.currentSlideIndex, this.state.slides.length);
+            value: function showNextAutoPlaySlide(nextSlideIndex) {
                 var currentSlide = this.state.slides[this.state.currentSlideIndex];
                 var nextSlide = this.state.slides[nextSlideIndex];
 
@@ -253,30 +261,31 @@ __webpack_require__(2);
 
                 this.showSlide({
                     $element: nextSlide.$element,
-                    duration: nextSlide.settings.duration,
-                    animationType: nextSlide.settings.animationType
+                    duration: nextSlide.settings.animation.duration,
+                    animation: nextSlide.settings.animation
                 });
                 this.hideSlide({
                     $element: currentSlide.$element,
-                    duration: nextSlide.settings.duration,
-                    animationType: currentSlide.settings.animationType
+                    duration: nextSlide.settings.animation.duration,
+                    animation: currentSlide.settings.animation
                 });
 
-                this.updateCurrentIndex(nextSlideIndex);
+                this.updateIndex(nextSlideIndex);
             }
         }, {
             key: 'showSlide',
             value: function showSlide(_ref2) {
                 var $element = _ref2.$element,
                     duration = _ref2.duration,
-                    animationType = _ref2.animationType;
+                    animation = _ref2.animation;
 
                 $element.addClass('active');
 
-                _helpers.animate[animationType].in({
+                _helpers.animate[animation.type].in({
                     $element: $element,
                     duration: duration,
-                    slideHeight: this.state.slideHeight
+                    slideHeight: this.state.slideHeight,
+                    animation: animation
                 });
             }
         }, {
@@ -284,19 +293,21 @@ __webpack_require__(2);
             value: function hideSlide(_ref3) {
                 var $element = _ref3.$element,
                     duration = _ref3.duration,
-                    animationType = _ref3.animationType;
+                    animation = _ref3.animation;
 
                 $element.removeClass('active');
 
-                _helpers.animate[animationType].out({
+                _helpers.animate[animation.type].out({
                     $element: $element,
                     duration: duration,
-                    slideHeight: this.state.slideHeight
+                    slideHeight: this.state.slideHeight,
+                    animation: animation
                 });
             }
         }, {
-            key: 'updateCurrentIndex',
-            value: function updateCurrentIndex(index) {
+            key: 'updateIndex',
+            value: function updateIndex(index) {
+                this.state.prevSlideIndex = this.state.currentSlideIndex;
                 this.state.currentSlideIndex = index;
             }
         }]);
@@ -338,11 +349,11 @@ var animate = exports.animate = {
         'in': function _in(props) {
             TweenLite.fromTo(props.$element, props.duration, {
                 rotationX: 90, y: -props.slideHeight / 2
-
             }, {
                 rotationX: 0,
                 y: 0,
-                autoAlpha: 1
+                autoAlpha: 1,
+                delay: props.animation.delay
             });
         },
         'out': function out(props) {
@@ -356,7 +367,8 @@ var animate = exports.animate = {
             TweenLite.fromTo(props.$element, props.duration, {
                 autoAlpha: 0
             }, {
-                autoAlpha: 1
+                autoAlpha: 1,
+                delay: props.animation.delay
             });
         },
         'out': function out(props) {
