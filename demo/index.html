@@ -9,8 +9,11 @@
     <meta name="keywords" content="responsive jQuery plugin Greensock Gsap animation headline">
 
     <link rel="stylesheet" href="../build/animatedHeadline.css">
-    <link rel="stylesheet" href="style.css">
 
+
+    <link rel="stylesheet" href="build/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script>
+    <script src="build/app.js"></script>
 
 </head>
 
@@ -28,10 +31,10 @@
                     <b>
                         color
                     </b>
-                    <b data-animated-headline-item='{"duration": 1, "autoplay_speed": 5}'>
+                    <b data-animated-headline-item='{"duration": 1, "autoplay_speed": 1}'>
                         molor
                     </b>
-                    <b data-animated-headline-item='{"duration": 1, "autoplay_speed": 1}'>
+                    <b data-animated-headline-item='{"duration": 1, "autoplay_speed": 5}'>
                          folor mulor
                      </b>
                     <b>
@@ -165,26 +168,6 @@
     </div>
 
 </section>
-
-
-<script src="js/jquery-3.2.0.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.20.2/TweenMax.min.js"></script>
-
-<script src="../build/animatedHeadline.js"></script>
-
-
-<script>
-
-    $('.section-intro .animated-headline').animatedHeadline({
-        center_mode: true
-    });
-
-    $('.feature-item .animated-headline').animatedHeadline();
-
-
-
-</script>
 
 </body>
 </html>

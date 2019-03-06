@@ -1,178 +1,195 @@
+require("./animatedHeadline.scss");
+import {getNextSlideIndex} from './helpers.es6';
 
 /*
-
- animatedHeadline
-
+ Version: 1.0.1
  Author: lemehovskiy
-
+ Website: http://lemehovskiy.github.io
+ Repo: https://github.com/lemehovskiy/animatedHeadline
  */
 
-;(function (factory) {
-    'use strict';
-    if (typeof define === 'function' && define.amd) {
-        define(['jquery'], factory);
-    } else if (typeof exports !== 'undefined') {
-        module.exports = factory(require('jquery'));
-    } else {
-        factory(jQuery);
-    }
-
-}
+'use strict';
 
 (function ($) {
+    class AnimatedHeadline {
+        constructor(element, options) {
+            let self = this;
 
-    $.fn.animatedHeadline = function (options) {
-
-        let general_settings = $.extend({
-            duration: 0.5,
-            autoplay_speed: 2,
-            center_mode: false
-        }, options);
-
-
-        $(this).each(function () {
-
-            let $this = $(this),
-                $slide_items = $this.find('b'),
-                items_height,
-                slides = [],
-                current_index,
-                loop_interval;
-
-            init();
-
-            function init (){
-
-                //hide not active
-                TweenLite.set($this.find('b:not(.active)'), {autoAlpha: 0});
-
-                //set init index
-                current_index = $this.find('b.active').index();
-
-                //generate items arr
-                $slide_items.each(function () {
-
-                    let $this_item = $(this);
-
-                    let slide = {};
-
-                    slide.settings = $.extend({}, general_settings, $this_item.data('animated-headline-item'));
-
-                    slide.element = $this_item;
-
-                    slides.push(slide);
-
-                });
-
-                $(window).on('load resize', function () {
-                    set_width();
-
-                    items_height = $slide_items.outerHeight();
-                });
-
-                run_interval(slides[0].settings.autoplay_speed);
-            }
-
-
-            function set_width() {
-
-                if (general_settings.center_mode) {
-                    $slide_items.css({
-                        width: 'auto'
-                    });
+            //extend by function call
+            this.settings = $.extend(true, {
+                slideSettings: {
+                    duration: 0.5,
+                    autoplay_speed: 3
                 }
+            }, options);
 
-                $this.css({
+            this.$element = $(element);
+            this.$elementItems = this.$element.find('b');
+
+            //extend by data options
+            this.data_options = self.$element.data('animated-headline');
+            this.settings = $.extend(true, self.settings, self.data_options);
+
+            this.state = {
+                slides: [],
+                currentSlideIndex: 0,
+                slideHeight: 0,
+                autoPlayInterval: undefined
+            };
+
+            this.init();
+        }
+
+        init() {
+            let self = this;
+
+            //hide not active
+            TweenLite.set(this.$element.find('b:not(.active)'), {autoAlpha: 0});
+
+            self.initCurrentSlideIndex();
+            self.initSlideItems();
+
+            $(window).on('load resize', function () {
+                self.onResize();
+            });
+
+            this.startAutoPlay(this.state.slides[0].settings.autoplay_speed);
+        }
+
+        onResize(){
+            this.updateWidth();
+            this.state.slideHeight = this.$elementItems.outerHeight();
+        }
+
+        initCurrentSlideIndex(){
+            this.state.currentSlideIndex = this.$element.find('b.active').index();
+        }
+
+        initSlideItems(){
+            let self = this;
+
+            let slides = [];
+            self.$elementItems.each(function () {
+                let slide = {};
+                let slideSettings = {};
+
+                $.extend(true, slideSettings, self.settings.slideSettings, $(this).data('animated-headline-item'));
+
+                slide.settings = slideSettings;
+                slide.$element = $(this);
+                slides.push(slide);
+            });
+
+            this.state.slides = slides;
+        }
+
+        updateWidth() {
+            if (this.settings.center_mode) {
+                this.$elementItems.css({
                     width: 'auto'
                 });
-
-                let width_arr = $this.find('b').map(function () {
-                    return Math.round($(this).width());
-                }).get();
-
-
-                $this.css({
-                    width: Math.max.apply(null, width_arr) + 'px'
-                })
-
-                if (general_settings.center_mode) {
-                    $slide_items.css({
-                        width: '100%'
-                    });
-                }
             }
 
-            function run_interval(interval) {
+            this.$element.css({
+                width: 'auto'
+            });
 
-                clearInterval(loop_interval);
-
-                loop_interval = setInterval(function () {
-
-
-                    update_current_index();
-
-                    let item_interval = slides[current_index].settings.autoplay_speed + slides[current_index].settings.duration;
-
-                    if (interval != item_interval) {
-                        run_interval(item_interval);
-                    }
-
-                    show_item({
-                        element: slides[current_index].element,
-                        duration: slides[current_index].settings.duration
-                    });
-                    hide_item({
-                        element: slides[get_prev_index(current_index)].element,
-                        duration: slides[current_index].settings.duration
-                    });
-
-                }, interval * 1000);
-
-            }
+            let width_arr = this.$element.find('b').map(function () {
+                return Math.round($(this).width());
+            }).get();
 
 
-            function show_item(settings) {
+            this.$element.css({
+                width: Math.max.apply(null, width_arr) + 'px'
+            })
 
-                settings.element.addClass('active');
-
-                TweenLite.fromTo(settings.element, settings.duration, {rotationX: 90, y: -items_height / 2}, {
-                    rotationX: 0,
-                    y: 0,
-                    autoAlpha: 1
+            if (this.settings.center_mode) {
+                this.$elementItems.css({
+                    width: '100%'
                 });
             }
+        }
 
-            function hide_item(settings) {
+        startAutoPlay(interval) {
+            let self = this;
 
-                settings.element.removeClass('active');
+            this.state.autoPlayInterval = setInterval(function () {
+                let currentSlide = self.state.slides[self.state.currentSlideIndex];
+                let slideItemInterval = currentSlide.settings.autoplay_speed + currentSlide.settings.duration;
 
-                TweenLite.to(settings.element, settings.duration, {rotationX: -90, y: items_height / 2, autoAlpha: 0});
-            }
-
-
-            function update_current_index() {
-
-                if (current_index == slides.length - 1) {
-                    current_index = 0;
+                if (interval != slideItemInterval) {
+                    self.stopAutoPlay();
+                    self.startAutoPlay(slideItemInterval);
                 }
 
-                else {
-                    current_index++;
-                }
-            }
+                self.showNextAutoPlaySlide();
 
-            function get_prev_index(prev_index) {
-                if (prev_index == 0) {
-                    return slides.length - 1;
-                }
-                else {
-                    return prev_index - 1;
-                }
-            }
+            }, interval * 1000);
+        }
 
+        stopAutoPlay(){
+            clearInterval(this.state.autoPlayInterval)
+        }
 
-        });
+        showNextAutoPlaySlide(){
+            const nextSlideIndex = getNextSlideIndex(this.state.currentSlideIndex, this.state.slides.length);
+            let currentSlide = this.state.slides[this.state.currentSlideIndex];
+            let nextSlide = this.state.slides[nextSlideIndex];
 
+            this.goToSlide({
+                currentSlide: currentSlide,
+                nextSlide: nextSlide,
+                nextSlideIndex: nextSlideIndex
+            })
+        }
+
+        goToSlide({currentSlide, nextSlide, nextSlideIndex}){
+            this.showSlide({
+                $element: nextSlide.$element,
+                duration: nextSlide.settings.duration
+            });
+            this.hideSlide({
+                $element: currentSlide.$element,
+                duration: nextSlide.settings.duration
+            });
+
+            this.updateCurrentIndex(nextSlideIndex);
+        }
+
+        showSlide({$element, duration}) {
+            $element.addClass('active');
+            TweenLite.fromTo($element, duration, {rotationX: 90, y: -this.state.slideHeight / 2}, {
+                rotationX: 0,
+                y: 0,
+                autoAlpha: 1
+            });
+        }
+
+        hideSlide({$element, duration}) {
+            $element.removeClass('active');
+            TweenLite.to($element, duration, {rotationX: -90, y: this.state.slideHeight / 2, autoAlpha: 0});
+        }
+
+        updateCurrentIndex(index) {
+           this.state.currentSlideIndex = index
+        }
     }
 
-}));
+    $.fn.animatedHeadline = function () {
+        let $this = this,
+            opt = arguments[0],
+            args = Array.prototype.slice.call(arguments, 1),
+            length = $this.length,
+            i,
+            ret;
+        for (i = 0; i < length; i++) {
+            if (typeof opt == 'object' || typeof opt == 'undefined')
+                $this[i].scroller = new AnimatedHeadline($this[i], opt);
+            else
+                ret = $this[i].scroller[opt].apply($this[i].scroller, args);
+            if (typeof ret != 'undefined') return ret;
+        }
+        return $this;
+    };
+
+})(jQuery);
