@@ -6,7 +6,7 @@ export const animate = {
     'rotate': {
         'in': (props) => {
             TweenLite.fromTo(
-                props.$element,
+                props.slide.$element,
                 props.duration,
                 {
                     rotationX: 90, y: -props.slideHeight / 2
@@ -15,13 +15,13 @@ export const animate = {
                     rotationX: 0,
                     y: 0,
                     autoAlpha: 1,
-                    delay: props.animation.delay
+                    delay: props.slide.animation.delay
                 }
             );
         },
         'out': (props) => {
             TweenLite.to(
-                props.$element,
+                props.slide.$element,
                 props.duration,
                 {
                     rotationX: -90, y: props.slideHeight / 2, autoAlpha: 0
@@ -32,14 +32,14 @@ export const animate = {
     'fade': {
         'in': (props) => {
             TweenLite.fromTo(
-                props.$element,
+                props.slide.$element,
                 props.duration,
                 {
                     autoAlpha: 0
                 },
                 {
                     autoAlpha: 1,
-                    delay: props.animation.delay
+                    delay: props.slide.animation.delay
                 }
             );
         },
@@ -47,6 +47,29 @@ export const animate = {
             TweenLite.to(props.$element, props.duration,
                 {
                     autoAlpha: 0
+                });
+        }
+    },
+    'clip': {
+        'in': (props) => {
+            TweenLite.fromTo(
+                props.slide.$elementInner,
+                props.duration,
+                {
+                    y: '-100%'
+                },
+                {
+                    y: 0,
+                    delay: props.slide.animation.delay
+                }
+            );
+        },
+        'out': (props) => {
+            TweenLite.to(
+                props.slide.$elementInner,
+                props.duration,
+                {
+                    y: '100%'
                 });
         }
     }

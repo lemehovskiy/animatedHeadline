@@ -109,6 +109,7 @@ __webpack_require__(2);
 
             //extend by function call
             this.settings = $.extend(true, {
+                autoPlay: true,
                 slideSettings: {
                     autoplaySpeed: 1,
                     animation: {
@@ -116,7 +117,6 @@ __webpack_require__(2);
                         duration: 0.5,
                         delay: 0
                     }
-
                 }
             }, options);
 
@@ -142,24 +142,24 @@ __webpack_require__(2);
             key: 'init',
             value: function init() {
                 var self = this;
-
-                //hide not active
-                TweenLite.set(this.$element.find('b:not(.active)'), { autoAlpha: 0 });
-
+                self.initActiveSlide();
                 self.initCurrentSlideIndex();
                 self.initSlideItems();
-
                 $(window).on('load resize', function () {
                     self.onResize();
                 });
-
-                this.initAutoPlay();
+                if (this.settings.autoPlay) this.initAutoPlay();
+            }
+        }, {
+            key: 'initActiveSlide',
+            value: function initActiveSlide() {
+                TweenLite.set(this.$element.find('.animate-headline__item:not(.active)'), { autoAlpha: 0 });
             }
         }, {
             key: 'initAutoPlay',
             value: function initAutoPlay() {
                 var slide = this.state.slides[0];
-                this.startAutoPlay(slide.settings.autoplaySpeed + slide.settings.animation.duration);
+                this.startAutoPlay(slide.autoplaySpeed + slide.animation.duration);
             }
         }, {
             key: 'onResize',
@@ -170,21 +170,24 @@ __webpack_require__(2);
         }, {
             key: 'initCurrentSlideIndex',
             value: function initCurrentSlideIndex() {
-                this.state.currentSlideIndex = this.$element.find('b.active').index();
+                this.state.currentSlideIndex = this.$element.find('.animate-headline__item.active').index();
             }
         }, {
             key: 'initSlideItems',
             value: function initSlideItems() {
                 var self = this;
-
                 var slides = [];
                 self.$elementItems.each(function () {
                     var slide = {};
-                    var slideSettings = {};
 
-                    $.extend(true, slideSettings, self.settings.slideSettings, $(this).data('animated-headline-item'));
+                    $.extend(true, slide, self.settings.slideSettings, $(this).data('animated-headline-item'));
 
-                    slide.settings = slideSettings;
+                    $(this).wrapInner("<b class='animate-headline__item-inner'></b>");
+
+                    if (slide.animation.type === 'clip') {
+                        slide.$elementInner = $(this).find('.animate-headline__item-inner');
+                    }
+
                     slide.$element = $(this);
                     slides.push(slide);
                 });
@@ -221,11 +224,10 @@ __webpack_require__(2);
             key: 'startAutoPlay',
             value: function startAutoPlay(interval) {
                 var self = this;
-
                 this.state.autoPlayInterval = setInterval(function () {
                     var nextSlideIndex = (0, _helpers.getNextSlideIndex)(self.state.currentSlideIndex, self.state.slides.length);
                     var slide = self.state.slides[nextSlideIndex];
-                    var slideItemInterval = slide.settings.autoplaySpeed + slide.settings.animation.duration;
+                    var slideItemInterval = slide.autoplaySpeed + slide.animation.duration;
 
                     if (interval != slideItemInterval) {
                         self.stopAutoPlay();
@@ -260,14 +262,12 @@ __webpack_require__(2);
                     nextSlideIndex = _ref.nextSlideIndex;
 
                 this.showSlide({
-                    $element: nextSlide.$element,
-                    duration: nextSlide.settings.animation.duration,
-                    animation: nextSlide.settings.animation
+                    slide: nextSlide,
+                    duration: nextSlide.animation.duration
                 });
                 this.hideSlide({
-                    $element: currentSlide.$element,
-                    duration: nextSlide.settings.animation.duration,
-                    animation: currentSlide.settings.animation
+                    slide: currentSlide,
+                    duration: nextSlide.animation.duration
                 });
 
                 this.updateIndex(nextSlideIndex);
@@ -275,33 +275,27 @@ __webpack_require__(2);
         }, {
             key: 'showSlide',
             value: function showSlide(_ref2) {
-                var $element = _ref2.$element,
-                    duration = _ref2.duration,
-                    animation = _ref2.animation;
+                var slide = _ref2.slide,
+                    duration = _ref2.duration;
 
-                $element.addClass('active');
-
-                _helpers.animate[animation.type].in({
-                    $element: $element,
+                slide.$element.addClass('active');
+                _helpers.animate[slide.animation.type].in({
+                    slide: slide,
                     duration: duration,
-                    slideHeight: this.state.slideHeight,
-                    animation: animation
+                    slideHeight: this.state.slideHeight
                 });
             }
         }, {
             key: 'hideSlide',
             value: function hideSlide(_ref3) {
-                var $element = _ref3.$element,
-                    duration = _ref3.duration,
-                    animation = _ref3.animation;
+                var slide = _ref3.slide,
+                    duration = _ref3.duration;
 
-                $element.removeClass('active');
-
-                _helpers.animate[animation.type].out({
-                    $element: $element,
+                slide.$element.removeClass('active');
+                _helpers.animate[slide.animation.type].out({
+                    slide: slide,
                     duration: duration,
-                    slideHeight: this.state.slideHeight,
-                    animation: animation
+                    slideHeight: this.state.slideHeight
                 });
             }
         }, {
@@ -347,33 +341,48 @@ var getNextSlideIndex = exports.getNextSlideIndex = function getNextSlideIndex(c
 var animate = exports.animate = {
     'rotate': {
         'in': function _in(props) {
-            TweenLite.fromTo(props.$element, props.duration, {
+            TweenLite.fromTo(props.slide.$element, props.duration, {
                 rotationX: 90, y: -props.slideHeight / 2
             }, {
                 rotationX: 0,
                 y: 0,
                 autoAlpha: 1,
-                delay: props.animation.delay
+                delay: props.slide.animation.delay
             });
         },
         'out': function out(props) {
-            TweenLite.to(props.$element, props.duration, {
+            TweenLite.to(props.slide.$element, props.duration, {
                 rotationX: -90, y: props.slideHeight / 2, autoAlpha: 0
             });
         }
     },
     'fade': {
         'in': function _in(props) {
-            TweenLite.fromTo(props.$element, props.duration, {
+            TweenLite.fromTo(props.slide.$element, props.duration, {
                 autoAlpha: 0
             }, {
                 autoAlpha: 1,
-                delay: props.animation.delay
+                delay: props.slide.animation.delay
             });
         },
         'out': function out(props) {
             TweenLite.to(props.$element, props.duration, {
                 autoAlpha: 0
+            });
+        }
+    },
+    'clip': {
+        'in': function _in(props) {
+            TweenLite.fromTo(props.slide.$elementInner, props.duration, {
+                y: '-100%'
+            }, {
+                y: 0,
+                delay: props.slide.animation.delay
+            });
+        },
+        'out': function out(props) {
+            TweenLite.to(props.slide.$elementInner, props.duration, {
+                y: '100%'
             });
         }
     }

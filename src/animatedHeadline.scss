@@ -2,18 +2,23 @@
   position: relative;
   perspective: 1000px;
   display: inline-block;
+}
 
-  b {
-    white-space: nowrap;
-    position: absolute;
-    left: 0;
-    top: 0;
-    display: inline-block;
-    text-align: center;
-    width: 100%;
+.animate-headline__item {
+  overflow: hidden;
+  white-space: nowrap;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  text-align: center;
+  width: 100%;
 
-    &.active {
-      position: relative;
-    }
+  &.active {
+    position: relative;
   }
+}
+
+.animate-headline__item-inner {
+  display: block;
 }

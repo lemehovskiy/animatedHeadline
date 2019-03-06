@@ -17,6 +17,7 @@ import {getNextSlideIndex, animate} from './helpers.es6';
 
             //extend by function call
             this.settings = $.extend(true, {
+                autoPlay: true,
                 slideSettings: {
                     autoplaySpeed: 1,
                     animation: {
@@ -24,7 +25,6 @@ import {getNextSlideIndex, animate} from './helpers.es6';
                         duration: 0.5,
                         delay: 0
                     }
-
                 }
             }, options);
 
@@ -48,24 +48,22 @@ import {getNextSlideIndex, animate} from './helpers.es6';
 
         init() {
             let self = this;
-
-            //hide not active
-            TweenLite.set(this.$element.find('b:not(.active)'), {autoAlpha: 0});
-
+            self.initActiveSlide();
             self.initCurrentSlideIndex();
             self.initSlideItems();
-
             $(window).on('load resize', function () {
                 self.onResize();
             });
+            if (this.settings.autoPlay) this.initAutoPlay();
+        }
 
-            this.initAutoPlay();
-
+        initActiveSlide(){
+            TweenLite.set(this.$element.find('.animate-headline__item:not(.active)'), {autoAlpha: 0});
         }
 
         initAutoPlay(){
             let slide = this.state.slides[0];
-            this.startAutoPlay(slide.settings.autoplaySpeed + slide.settings.animation.duration);
+            this.startAutoPlay(slide.autoplaySpeed + slide.animation.duration);
         }
 
         onResize() {
@@ -74,20 +72,23 @@ import {getNextSlideIndex, animate} from './helpers.es6';
         }
 
         initCurrentSlideIndex() {
-            this.state.currentSlideIndex = this.$element.find('b.active').index();
+            this.state.currentSlideIndex = this.$element.find('.animate-headline__item.active').index();
         }
 
         initSlideItems() {
             let self = this;
-
             let slides = [];
             self.$elementItems.each(function () {
                 let slide = {};
-                let slideSettings = {};
+                
+                $.extend(true, slide, self.settings.slideSettings, $(this).data('animated-headline-item'));
 
-                $.extend(true, slideSettings, self.settings.slideSettings, $(this).data('animated-headline-item'));
+                $(this).wrapInner("<b class='animate-headline__item-inner'></b>")
 
-                slide.settings = slideSettings;
+                if (slide.animation.type === 'clip') {
+                    slide.$elementInner = $(this).find('.animate-headline__item-inner');
+                }
+
                 slide.$element = $(this);
                 slides.push(slide);
             });
@@ -123,11 +124,10 @@ import {getNextSlideIndex, animate} from './helpers.es6';
 
         startAutoPlay(interval) {
             let self = this;
-
             this.state.autoPlayInterval = setInterval(function () {
                 const nextSlideIndex = getNextSlideIndex(self.state.currentSlideIndex, self.state.slides.length);
                 const slide = self.state.slides[nextSlideIndex];
-                const slideItemInterval = slide.settings.autoplaySpeed + slide.settings.animation.duration;
+                const slideItemInterval = slide.autoplaySpeed + slide.animation.duration;
 
                 if (interval != slideItemInterval) {
                     self.stopAutoPlay();
@@ -156,38 +156,32 @@ import {getNextSlideIndex, animate} from './helpers.es6';
 
         goToSlide({currentSlide, nextSlide, nextSlideIndex}) {
             this.showSlide({
-                $element: nextSlide.$element,
-                duration: nextSlide.settings.animation.duration,
-                animation: nextSlide.settings.animation
+                slide: nextSlide,
+                duration: nextSlide.animation.duration
             });
             this.hideSlide({
-                $element: currentSlide.$element,
-                duration: nextSlide.settings.animation.duration,
-                animation: currentSlide.settings.animation
+                slide: currentSlide,
+                duration: nextSlide.animation.duration
             });
 
             this.updateIndex(nextSlideIndex);
         }
 
-        showSlide({$element, duration, animation}) {
-            $element.addClass('active');
-
-            animate[animation.type].in({
-                $element: $element,
+        showSlide({slide, duration}) {
+            slide.$element.addClass('active');
+            animate[slide.animation.type].in({
+                slide: slide,
                 duration: duration,
-                slideHeight: this.state.slideHeight,
-                animation: animation
+                slideHeight: this.state.slideHeight
             });
         }
 
-        hideSlide({$element, duration, animation}) {
-            $element.removeClass('active');
-
-            animate[animation.type].out({
-                $element: $element,
+        hideSlide({slide, duration}) {
+            slide.$element.removeClass('active');
+            animate[slide.animation.type].out({
+                slide: slide,
                 duration: duration,
-                slideHeight: this.state.slideHeight,
-                animation: animation
+                slideHeight: this.state.slideHeight
             });
         }
 

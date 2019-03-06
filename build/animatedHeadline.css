@@ -5,7 +5,8 @@
   display: inline-block;
 }
 
-.animated-headline b {
+.animate-headline__item {
+  overflow: hidden;
   white-space: nowrap;
   position: absolute;
   left: 0;
@@ -15,8 +16,12 @@
   width: 100%;
 }
 
-.animated-headline b.active {
+.animate-headline__item.active {
   position: relative;
+}
+
+.animate-headline__item-inner {
+  display: block;
 }
 
 
