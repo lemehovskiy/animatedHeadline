@@ -1,5 +1,5 @@
 require("./animatedHeadline.scss");
-import {getNextSlideIndex} from './helpers.es6';
+import {getNextSlideIndex, animate} from './helpers.es6';
 
 /*
  Version: 1.0.1
@@ -19,7 +19,8 @@ import {getNextSlideIndex} from './helpers.es6';
             this.settings = $.extend(true, {
                 slideSettings: {
                     duration: 0.5,
-                    autoplay_speed: 3
+                    autoplaySpeed: 1,
+                    animationType: 'rotate'
                 }
             }, options);
 
@@ -53,7 +54,7 @@ import {getNextSlideIndex} from './helpers.es6';
                 self.onResize();
             });
 
-            this.startAutoPlay(this.state.slides[0].settings.autoplay_speed);
+            this.startAutoPlay(this.state.slides[0].settings.autoplaySpeed);
         }
 
         onResize(){
@@ -79,6 +80,8 @@ import {getNextSlideIndex} from './helpers.es6';
                 slide.$element = $(this);
                 slides.push(slide);
             });
+
+            console.log(slides);
 
             this.state.slides = slides;
         }
@@ -115,7 +118,7 @@ import {getNextSlideIndex} from './helpers.es6';
 
             this.state.autoPlayInterval = setInterval(function () {
                 let currentSlide = self.state.slides[self.state.currentSlideIndex];
-                let slideItemInterval = currentSlide.settings.autoplay_speed + currentSlide.settings.duration;
+                let slideItemInterval = currentSlide.settings.autoplaySpeed + currentSlide.settings.duration;
 
                 if (interval != slideItemInterval) {
                     self.stopAutoPlay();
@@ -146,28 +149,37 @@ import {getNextSlideIndex} from './helpers.es6';
         goToSlide({currentSlide, nextSlide, nextSlideIndex}){
             this.showSlide({
                 $element: nextSlide.$element,
-                duration: nextSlide.settings.duration
+                duration: nextSlide.settings.duration,
+                animationType: nextSlide.settings.animationType
             });
             this.hideSlide({
                 $element: currentSlide.$element,
-                duration: nextSlide.settings.duration
+                duration: nextSlide.settings.duration,
+                animationType: nextSlide.settings.animationType
             });
 
             this.updateCurrentIndex(nextSlideIndex);
         }
 
-        showSlide({$element, duration}) {
+        showSlide({$element, duration, animationType}) {
             $element.addClass('active');
-            TweenLite.fromTo($element, duration, {rotationX: 90, y: -this.state.slideHeight / 2}, {
-                rotationX: 0,
-                y: 0,
-                autoAlpha: 1
+
+            animate[animationType].in({
+                $element: $element,
+                duration: duration,
+                slideHeight: this.state.slideHeight
             });
         }
 
-        hideSlide({$element, duration}) {
+
+        hideSlide({$element, duration, animationType}) {
             $element.removeClass('active');
-            TweenLite.to($element, duration, {rotationX: -90, y: this.state.slideHeight / 2, autoAlpha: 0});
+
+            animate[animationType].out({
+                $element: $element,
+                duration: duration,
+                slideHeight: this.state.slideHeight
+            });
         }
 
         updateCurrentIndex(index) {

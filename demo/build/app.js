@@ -12154,7 +12154,8 @@ __webpack_require__(2);
             this.settings = $.extend(true, {
                 slideSettings: {
                     duration: 0.5,
-                    autoplay_speed: 3
+                    autoplaySpeed: 1,
+                    animationType: 'rotate'
                 }
             }, options);
 
@@ -12190,7 +12191,7 @@ __webpack_require__(2);
                     self.onResize();
                 });
 
-                this.startAutoPlay(this.state.slides[0].settings.autoplay_speed);
+                this.startAutoPlay(this.state.slides[0].settings.autoplaySpeed);
             }
         }, {
             key: 'onResize',
@@ -12219,6 +12220,8 @@ __webpack_require__(2);
                     slide.$element = $(this);
                     slides.push(slide);
                 });
+
+                console.log(slides);
 
                 this.state.slides = slides;
             }
@@ -12256,7 +12259,7 @@ __webpack_require__(2);
 
                 this.state.autoPlayInterval = setInterval(function () {
                     var currentSlide = self.state.slides[self.state.currentSlideIndex];
-                    var slideItemInterval = currentSlide.settings.autoplay_speed + currentSlide.settings.duration;
+                    var slideItemInterval = currentSlide.settings.autoplaySpeed + currentSlide.settings.duration;
 
                     if (interval != slideItemInterval) {
                         self.stopAutoPlay();
@@ -12293,11 +12296,13 @@ __webpack_require__(2);
 
                 this.showSlide({
                     $element: nextSlide.$element,
-                    duration: nextSlide.settings.duration
+                    duration: nextSlide.settings.duration,
+                    animationType: nextSlide.settings.animationType
                 });
                 this.hideSlide({
                     $element: currentSlide.$element,
-                    duration: nextSlide.settings.duration
+                    duration: nextSlide.settings.duration,
+                    animationType: nextSlide.settings.animationType
                 });
 
                 this.updateCurrentIndex(nextSlideIndex);
@@ -12306,23 +12311,31 @@ __webpack_require__(2);
             key: 'showSlide',
             value: function showSlide(_ref2) {
                 var $element = _ref2.$element,
-                    duration = _ref2.duration;
+                    duration = _ref2.duration,
+                    animationType = _ref2.animationType;
 
                 $element.addClass('active');
-                TweenLite.fromTo($element, duration, { rotationX: 90, y: -this.state.slideHeight / 2 }, {
-                    rotationX: 0,
-                    y: 0,
-                    autoAlpha: 1
+
+                _helpers.animate[animationType].in({
+                    $element: $element,
+                    duration: duration,
+                    slideHeight: this.state.slideHeight
                 });
             }
         }, {
             key: 'hideSlide',
             value: function hideSlide(_ref3) {
                 var $element = _ref3.$element,
-                    duration = _ref3.duration;
+                    duration = _ref3.duration,
+                    animationType = _ref3.animationType;
 
                 $element.removeClass('active');
-                TweenLite.to($element, duration, { rotationX: -90, y: this.state.slideHeight / 2, autoAlpha: 0 });
+
+                _helpers.animate[animationType].out({
+                    $element: $element,
+                    duration: duration,
+                    slideHeight: this.state.slideHeight
+                });
             }
         }, {
             key: 'updateCurrentIndex',
@@ -12361,6 +12374,39 @@ Object.defineProperty(exports, "__esModule", {
 });
 var getNextSlideIndex = exports.getNextSlideIndex = function getNextSlideIndex(currentIndex, slidesLength) {
     return currentIndex === slidesLength - 1 ? 0 : ++currentIndex;
+};
+
+var animate = exports.animate = {
+    'rotate': {
+        'in': function _in(props) {
+            TweenLite.fromTo(props.$element, props.duration, {
+                rotationX: 90, y: -props.slideHeight / 2
+            }, {
+                rotationX: 0,
+                y: 0,
+                autoAlpha: 1
+            });
+        },
+        'out': function out(props) {
+            TweenLite.to(props.$element, props.duration, {
+                rotationX: -90, y: props.slideHeight / 2, autoAlpha: 0
+            });
+        }
+    },
+    'fade': {
+        'in': function _in(props) {
+            TweenLite.fromTo(props.$element, props.duration, {
+                autoAlpha: 0
+            }, {
+                autoAlpha: 1
+            });
+        },
+        'out': function out(props) {
+            TweenLite.to(props.$element, props.duration, {
+                autoAlpha: 0
+            });
+        }
+    }
 };
 
 /***/ }),
