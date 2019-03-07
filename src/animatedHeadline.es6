@@ -18,6 +18,7 @@ import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
             //extend by function call
             this.settings = $.extend(true, {
                 autoPlay: true,
+                centerMode: true,
                 slideSettings: {
                     autoplaySpeed: 1,
                     animation: {
@@ -104,7 +105,7 @@ import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
         
 
         updateWidth() {
-            if (this.settings.center_mode) {
+            if (this.settings.centerMode) {
                 this.$elementItems.css({
                     width: 'auto'
                 });
@@ -123,7 +124,7 @@ import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
                 width: Math.max.apply(null, width_arr) + 'px'
             })
 
-            if (this.settings.center_mode) {
+            if (this.settings.centerMode) {
                 this.$elementItems.css({
                     width: '100%'
                 });

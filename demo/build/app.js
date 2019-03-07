@@ -12153,6 +12153,7 @@ __webpack_require__(2);
             //extend by function call
             this.settings = $.extend(true, {
                 autoPlay: true,
+                centerMode: true,
                 slideSettings: {
                     autoplaySpeed: 1,
                     animation: {
@@ -12247,7 +12248,7 @@ __webpack_require__(2);
         }, {
             key: 'updateWidth',
             value: function updateWidth() {
-                if (this.settings.center_mode) {
+                if (this.settings.centerMode) {
                     this.$elementItems.css({
                         width: 'auto'
                     });
@@ -12265,7 +12266,7 @@ __webpack_require__(2);
                     width: Math.max.apply(null, width_arr) + 'px'
                 });
 
-                if (this.settings.center_mode) {
+                if (this.settings.centerMode) {
                     this.$elementItems.css({
                         width: '100%'
                     });
