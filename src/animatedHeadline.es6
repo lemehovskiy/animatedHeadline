@@ -1,5 +1,5 @@
 require("./animatedHeadline.scss");
-import {getNextSlideIndex, animate} from './helpers.es6';
+import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
 
 /*
  Version: 1.0.1
@@ -48,17 +48,23 @@ import {getNextSlideIndex, animate} from './helpers.es6';
 
         init() {
             let self = this;
-            self.initActiveSlide();
             self.initCurrentSlideIndex();
             self.initSlideItems();
-            $(window).on('load resize', function () {
-                self.onResize();
-            });
+            self.onResize();
+            self.initSlideItemsInitState();
+
+            $(window).on('resize', this.onResize);
             if (this.settings.autoPlay) this.initAutoPlay();
         }
 
-        initActiveSlide(){
-            TweenLite.set(this.$element.find('.animate-headline__item:not(.active)'), {autoAlpha: 0});
+        initSlideItemsInitState() {
+            this.state.slides.forEach((slide, index) => {
+                if (index === this.state.currentSlideIndex) return;
+                initAnimationState[slide.animation.type]({
+                    slide: slide,
+                    slideHeight: this.state.slideHeight
+                })
+            })
         }
 
         initAutoPlay(){
@@ -80,7 +86,6 @@ import {getNextSlideIndex, animate} from './helpers.es6';
             let slides = [];
             self.$elementItems.each(function () {
                 let slide = {};
-                
                 $.extend(true, slide, self.settings.slideSettings, $(this).data('animated-headline-item'));
 
                 $(this).wrapInner("<b class='animate-headline__item-inner'></b>")
@@ -92,8 +97,11 @@ import {getNextSlideIndex, animate} from './helpers.es6';
                 slide.$element = $(this);
                 slides.push(slide);
             });
+
+            
             this.state.slides = slides;
         }
+        
 
         updateWidth() {
             if (this.settings.center_mode) {
@@ -155,6 +163,7 @@ import {getNextSlideIndex, animate} from './helpers.es6';
         }
 
         goToSlide({currentSlide, nextSlide, nextSlideIndex}) {
+            console.log(nextSlide);
             this.showSlide({
                 slide: nextSlide,
                 duration: nextSlide.animation.duration

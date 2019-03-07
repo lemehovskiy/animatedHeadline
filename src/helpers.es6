@@ -5,6 +5,7 @@ export const getNextSlideIndex = (currentIndex, slidesLength) => {
 export const animate = {
     'rotate': {
         'in': (props) => {
+            console.log('rotate');
             TweenLite.fromTo(
                 props.slide.$element,
                 props.duration,
@@ -14,12 +15,12 @@ export const animate = {
                 {
                     rotationX: 0,
                     y: 0,
-                    autoAlpha: 1,
-                    delay: props.slide.animation.delay
+                    autoAlpha: 1
                 }
             );
         },
         'out': (props) => {
+            console.log('rotate');
             TweenLite.to(
                 props.slide.$element,
                 props.duration,
@@ -38,29 +39,31 @@ export const animate = {
                     autoAlpha: 0
                 },
                 {
-                    autoAlpha: 1,
-                    delay: props.slide.animation.delay
+                    autoAlpha: 1
                 }
             );
         },
         'out': (props) => {
-            TweenLite.to(props.$element, props.duration,
+            TweenLite.to(
+                props.slide.$element,
+                props.duration,
                 {
                     autoAlpha: 0
-                });
+                }
+            );
         }
     },
     'clip': {
         'in': (props) => {
+            console.log('clipIn');
             TweenLite.fromTo(
                 props.slide.$elementInner,
                 props.duration,
                 {
-                    y: '-100%'
+                    y: "-100%"
                 },
                 {
-                    y: 0,
-                    delay: props.slide.animation.delay
+                    y: "0%"
                 }
             );
         },
@@ -72,5 +75,32 @@ export const animate = {
                     y: '100%'
                 });
         }
+    }
+}
+
+
+export const initAnimationState = {
+    'rotate': (props) => {
+        TweenLite.set(
+            props.slide.$element,
+            {
+                rotationX: -90, y: props.slideHeight / 2, autoAlpha: 0
+            }
+        );
+    },
+    'fade': (props) => {
+        TweenLite.set(props.slide.$element,
+            {
+                autoAlpha: 0
+            }
+        );
+    },
+    'clip': (props) => {
+        TweenLite.set(
+            props.slide.$elementInner,
+            {
+                y: '-100%'
+            }
+        );
     }
 }
