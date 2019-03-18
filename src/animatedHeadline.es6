@@ -1,5 +1,5 @@
 require("./animatedHeadline.scss");
-import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
+import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from './helpers.es6';
 
 /*
  Version: 1.0.1
@@ -23,7 +23,7 @@ import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
                     autoplaySpeed: 1,
                     animation: {
                         type: 'rotate',
-                        duration: 0.5,
+                        duration: 1,
                         delay: 0
                     }
                 }
@@ -54,7 +54,7 @@ import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
             self.onResize();
             self.initSlideItemsInitState();
 
-            $(window).on('resize', this.onResize);
+            $(window).on('resize', this.onResize.bind(this));
             if (this.settings.autoPlay) this.initAutoPlay();
         }
 
@@ -90,9 +90,26 @@ import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
                 $.extend(true, slide, self.settings.slideSettings, $(this).data('animated-headline-item'));
 
                 $(this).wrapInner("<b class='animate-headline__item-inner'></b>")
+                slide.$elementInner = $(this).find('.animate-headline__item-inner');
 
-                if (slide.animation.type === 'clip') {
-                    slide.$elementInner = $(this).find('.animate-headline__item-inner');
+                if (slide.animation.type === 'contratiempo') {
+                    let letters = [];
+                    var characters = $(this).text().split("");
+                    slide.$elementInner.empty();
+
+                    $.each(characters, function (i, el) {
+                        const isSpace = el === ' ';
+                        const outputContent = isSpace ? "&nbsp;" : el;
+                        const $letter = $("<span>" + outputContent + "</span>");
+
+                        if (!isSpace) letters.push({
+                            $element: $letter
+                        });
+
+                        slide.$elementInner.append($letter);
+                    });
+
+                    slide.letters = letters;
                 }
 
                 slide.$element = $(this);
@@ -136,7 +153,7 @@ import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
             this.state.autoPlayInterval = setInterval(function () {
                 const nextSlideIndex = getNextSlideIndex(self.state.currentSlideIndex, self.state.slides.length);
                 const slide = self.state.slides[nextSlideIndex];
-                const slideItemInterval = slide.autoplaySpeed + slide.animation.duration;
+                const slideItemInterval = slide.autoplaySpeed + slide.animation.duration + slide.animation.delay;
 
                 if (interval != slideItemInterval) {
                     self.stopAutoPlay();
@@ -167,30 +184,34 @@ import {getNextSlideIndex, animate, initAnimationState} from './helpers.es6';
             console.log(nextSlide);
             this.showSlide({
                 slide: nextSlide,
-                duration: nextSlide.animation.duration
+                duration: nextSlide.animation.duration,
+                delay: nextSlide.animation.delay
             });
             this.hideSlide({
                 slide: currentSlide,
-                duration: nextSlide.animation.duration
+                duration: nextSlide.animation.duration,
+                delay: nextSlide.animation.delay
             });
 
             this.updateIndex(nextSlideIndex);
         }
 
-        showSlide({slide, duration}) {
+        showSlide({slide, duration, delay}) {
             slide.$element.addClass('active');
             animate[slide.animation.type].in({
                 slide: slide,
                 duration: duration,
+                delay: delay,
                 slideHeight: this.state.slideHeight
             });
         }
 
-        hideSlide({slide, duration}) {
+        hideSlide({slide, duration, delay}) {
             slide.$element.removeClass('active');
             animate[slide.animation.type].out({
                 slide: slide,
                 duration: duration,
+                delay: delay,
                 slideHeight: this.state.slideHeight
             });
         }

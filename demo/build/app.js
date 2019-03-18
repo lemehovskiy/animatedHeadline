@@ -7070,7 +7070,7 @@ module.exports = __webpack_require__(66);
 __webpack_require__(67);
 __webpack_require__(68);
 
-__webpack_require__(112);
+__webpack_require__(108);
 
 $(document).ready(function () {
 
@@ -12034,11 +12034,7 @@ if ( !noGlobal ) {
 
 
 /***/ }),
-/* 108 */,
-/* 109 */,
-/* 110 */,
-/* 111 */,
-/* 112 */
+/* 108 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -12158,7 +12154,7 @@ __webpack_require__(2);
                     autoplaySpeed: 1,
                     animation: {
                         type: 'rotate',
-                        duration: 0.5,
+                        duration: 1,
                         delay: 0
                     }
                 }
@@ -12191,7 +12187,7 @@ __webpack_require__(2);
                 self.onResize();
                 self.initSlideItemsInitState();
 
-                $(window).on('resize', this.onResize);
+                $(window).on('resize', this.onResize.bind(this));
                 if (this.settings.autoPlay) this.initAutoPlay();
             }
         }, {
@@ -12234,9 +12230,26 @@ __webpack_require__(2);
                     $.extend(true, slide, self.settings.slideSettings, $(this).data('animated-headline-item'));
 
                     $(this).wrapInner("<b class='animate-headline__item-inner'></b>");
+                    slide.$elementInner = $(this).find('.animate-headline__item-inner');
 
-                    if (slide.animation.type === 'clip') {
-                        slide.$elementInner = $(this).find('.animate-headline__item-inner');
+                    if (slide.animation.type === 'contratiempo') {
+                        var letters = [];
+                        var characters = $(this).text().split("");
+                        slide.$elementInner.empty();
+
+                        $.each(characters, function (i, el) {
+                            var isSpace = el === ' ';
+                            var outputContent = isSpace ? "&nbsp;" : el;
+                            var $letter = $("<span>" + outputContent + "</span>");
+
+                            if (!isSpace) letters.push({
+                                $element: $letter
+                            });
+
+                            slide.$elementInner.append($letter);
+                        });
+
+                        slide.letters = letters;
                     }
 
                     slide.$element = $(this);
@@ -12279,7 +12292,7 @@ __webpack_require__(2);
                 this.state.autoPlayInterval = setInterval(function () {
                     var nextSlideIndex = (0, _helpers.getNextSlideIndex)(self.state.currentSlideIndex, self.state.slides.length);
                     var slide = self.state.slides[nextSlideIndex];
-                    var slideItemInterval = slide.autoplaySpeed + slide.animation.duration;
+                    var slideItemInterval = slide.autoplaySpeed + slide.animation.duration + slide.animation.delay;
 
                     if (interval != slideItemInterval) {
                         self.stopAutoPlay();
@@ -12316,11 +12329,13 @@ __webpack_require__(2);
                 console.log(nextSlide);
                 this.showSlide({
                     slide: nextSlide,
-                    duration: nextSlide.animation.duration
+                    duration: nextSlide.animation.duration,
+                    delay: nextSlide.animation.delay
                 });
                 this.hideSlide({
                     slide: currentSlide,
-                    duration: nextSlide.animation.duration
+                    duration: nextSlide.animation.duration,
+                    delay: nextSlide.animation.delay
                 });
 
                 this.updateIndex(nextSlideIndex);
@@ -12329,12 +12344,14 @@ __webpack_require__(2);
             key: 'showSlide',
             value: function showSlide(_ref2) {
                 var slide = _ref2.slide,
-                    duration = _ref2.duration;
+                    duration = _ref2.duration,
+                    delay = _ref2.delay;
 
                 slide.$element.addClass('active');
                 _helpers.animate[slide.animation.type].in({
                     slide: slide,
                     duration: duration,
+                    delay: delay,
                     slideHeight: this.state.slideHeight
                 });
             }
@@ -12342,12 +12359,14 @@ __webpack_require__(2);
             key: 'hideSlide',
             value: function hideSlide(_ref3) {
                 var slide = _ref3.slide,
-                    duration = _ref3.duration;
+                    duration = _ref3.duration,
+                    delay = _ref3.delay;
 
                 slide.$element.removeClass('active');
                 _helpers.animate[slide.animation.type].out({
                     slide: slide,
                     duration: duration,
+                    delay: delay,
                     slideHeight: this.state.slideHeight
                 });
             }
@@ -12389,6 +12408,10 @@ Object.defineProperty(exports, "__esModule", {
 });
 var getNextSlideIndex = exports.getNextSlideIndex = function getNextSlideIndex(currentIndex, slidesLength) {
     return currentIndex === slidesLength - 1 ? 0 : ++currentIndex;
+};
+
+var getRandomArbitrary = exports.getRandomArbitrary = function getRandomArbitrary(min, max) {
+    return Math.random() * (max - min) + min;
 };
 
 var animate = exports.animate = {
@@ -12438,6 +12461,45 @@ var animate = exports.animate = {
                 y: '100%'
             });
         }
+    },
+
+    'contratiempo': {
+        'in': function _in(props) {
+            var shuffleLetters = props.slide.letters.sort(function () {
+                return .5 - Math.random();
+            });
+
+            shuffleLetters.forEach(function (letter, index) {
+                var duration = props.duration;
+                var randDuration = getRandomArbitrary(duration / 100 * 50, duration);
+                var delay = getRandomArbitrary(0, duration - randDuration) + props.delay;
+
+                if (index === 0 || index === letter.length + 1) {
+                    TweenLite.fromTo(letter.$element, duration, {
+                        x: Math.random() < 0.5 ? -15 : 15,
+                        autoAlpha: 0
+                    }, {
+                        x: 0,
+                        autoAlpha: 1,
+                        delay: props.delay
+                    });
+                } else {
+                    TweenLite.fromTo(letter.$element, randDuration, {
+                        autoAlpha: 0
+                    }, {
+                        autoAlpha: 1,
+                        delay: delay
+                    });
+                }
+            });
+        },
+        'out': function out(props) {
+            props.slide.letters.forEach(function (letter) {
+                TweenLite.to(letter.$element, props.duration, {
+                    autoAlpha: 0
+                });
+            });
+        }
     }
 };
 
@@ -12455,6 +12517,13 @@ var initAnimationState = exports.initAnimationState = {
     'clip': function clip(props) {
         TweenLite.set(props.slide.$elementInner, {
             y: '-100%'
+        });
+    },
+    'contratiempo': function contratiempo(props) {
+        props.slide.letters.forEach(function (letter) {
+            TweenLite.set(letter.$element, {
+                autoAlpha: 0
+            });
         });
     }
 };

@@ -20,4 +20,9 @@
 
 .animate-headline__item-inner {
   display: block;
+  letter-spacing: 4px;
+
+  span {
+    display: inline-block;
+  }
 }

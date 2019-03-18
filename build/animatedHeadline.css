@@ -21,6 +21,11 @@
 
 .animate-headline__item-inner {
   display: block;
+  letter-spacing: 4px;
+}
+
+.animate-headline__item-inner span {
+  display: inline-block;
 }
 
 
