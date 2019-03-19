@@ -100,13 +100,48 @@ __webpack_require__(2);
 
 'use strict';
 
+var rafInterval = function rafInterval(callBack, interval) {
+    var startTime = performance.now();
+    var lastTimeFraction = 0,
+        timePassed = 0,
+        timeFraction = 0,
+        requestID = undefined;
+
+    requestID = requestAnimationFrame(function tick(time) {
+        timePassed = time - startTime;
+        timeFraction = timePassed / interval;
+
+        requestID = requestAnimationFrame(tick);
+
+        if (timeFraction > lastTimeFraction + 1) {
+            lastTimeFraction = timeFraction;
+            callBack(requestID);
+        }
+    });
+};
+
+var rafIntervalId = undefined;
+
+rafInterval(function (id) {
+    rafIntervalId = id;
+    console.log('testInterval');
+}, 2000);
+
+var clearRafInterval = function clearRafInterval(interval) {
+    console.log(interval);
+
+    console.log('clearRafInterval');
+    cancelAnimationFrame(rafIntervalId);
+};
+
+setTimeout(clearRafInterval, 5000, rafIntervalId);
+
 (function ($) {
     var AnimatedHeadline = function () {
         function AnimatedHeadline(element, options) {
             _classCallCheck(this, AnimatedHeadline);
 
             var self = this;
-
             //extend by function call
             this.settings = $.extend(true, {
                 autoPlay: true,
@@ -135,7 +170,6 @@ __webpack_require__(2);
                 slideHeight: 0,
                 autoPlayInterval: undefined
             };
-
             this.init();
         }
 
@@ -147,7 +181,6 @@ __webpack_require__(2);
                 self.initSlideItems();
                 self.onResize();
                 self.initSlideItemsInitState();
-
                 $(window).on('resize', this.onResize.bind(this));
                 if (this.settings.autoPlay) this.initAutoPlay();
             }
@@ -184,8 +217,8 @@ __webpack_require__(2);
         }, {
             key: 'initSlideItems',
             value: function initSlideItems() {
-                var self = this;
-                var slides = [];
+                var self = this,
+                    slides = [];
                 self.$elementItems.each(function () {
                     var slide = {};
                     $.extend(true, slide, self.settings.slideSettings, $(this).data('animated-headline-item'));
@@ -209,14 +242,11 @@ __webpack_require__(2);
 
                             slide.$elementInner.append($letter);
                         });
-
                         slide.letters = letters;
                     }
-
                     slide.$element = $(this);
                     slides.push(slide);
                 });
-
                 this.state.slides = slides;
             }
         }, {
@@ -273,7 +303,6 @@ __webpack_require__(2);
             value: function showNextAutoPlaySlide(nextSlideIndex) {
                 var currentSlide = this.state.slides[this.state.currentSlideIndex];
                 var nextSlide = this.state.slides[nextSlideIndex];
-
                 this.goToSlide({
                     currentSlide: currentSlide,
                     nextSlide: nextSlide,
@@ -287,7 +316,6 @@ __webpack_require__(2);
                     nextSlide = _ref.nextSlide,
                     nextSlideIndex = _ref.nextSlideIndex;
 
-                console.log(nextSlide);
                 this.showSlide({
                     slide: nextSlide,
                     duration: nextSlide.animation.duration,
@@ -378,7 +406,6 @@ var getRandomArbitrary = exports.getRandomArbitrary = function getRandomArbitrar
 var animate = exports.animate = {
     'rotate': {
         'in': function _in(props) {
-            console.log('rotate');
             TweenLite.fromTo(props.slide.$element, props.duration, {
                 rotationX: 90, y: -props.slideHeight / 2
             }, {
@@ -388,7 +415,6 @@ var animate = exports.animate = {
             });
         },
         'out': function out(props) {
-            console.log('rotate');
             TweenLite.to(props.slide.$element, props.duration, {
                 rotationX: -90, y: props.slideHeight / 2, autoAlpha: 0
             });
@@ -410,7 +436,6 @@ var animate = exports.animate = {
     },
     'clip': {
         'in': function _in(props) {
-            console.log('clipIn');
             TweenLite.fromTo(props.slide.$elementInner, props.duration, {
                 y: "-100%"
             }, {

@@ -9,7 +9,6 @@ export const getRandomArbitrary = (min, max) => {
 export const animate = {
     'rotate': {
         'in': (props) => {
-            console.log('rotate');
             TweenLite.fromTo(
                 props.slide.$element,
                 props.duration,
@@ -24,7 +23,6 @@ export const animate = {
             );
         },
         'out': (props) => {
-            console.log('rotate');
             TweenLite.to(
                 props.slide.$element,
                 props.duration,
@@ -59,7 +57,6 @@ export const animate = {
     },
     'clip': {
         'in': (props) => {
-            console.log('clipIn');
             TweenLite.fromTo(
                 props.slide.$elementInner,
                 props.duration,

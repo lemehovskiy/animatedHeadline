@@ -10,11 +10,51 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
 
 'use strict';
 
+
+const rafInterval = (callBack, interval) => {
+    const startTime = performance.now();
+    let lastTimeFraction = 0,
+        timePassed = 0,
+        timeFraction = 0,
+        requestID = undefined;
+
+    requestID = requestAnimationFrame(function tick(time) {
+        timePassed = time - startTime;
+        timeFraction = timePassed / interval;
+
+        requestID = requestAnimationFrame(tick);
+
+        if (timeFraction > lastTimeFraction + 1) {
+            lastTimeFraction = timeFraction;
+            callBack(requestID);
+        }
+
+    })
+}
+
+let rafIntervalId = undefined;
+
+rafInterval((id) => {
+    rafIntervalId = id;
+    console.log('testInterval');
+
+}, 2000);
+
+
+const clearRafInterval = (interval) => {
+    console.log(interval);
+
+    console.log('clearRafInterval');
+    cancelAnimationFrame(rafIntervalId)
+};
+
+setTimeout(clearRafInterval, 5000, rafIntervalId);
+
 (function ($) {
+
     class AnimatedHeadline {
         constructor(element, options) {
             let self = this;
-
             //extend by function call
             this.settings = $.extend(true, {
                 autoPlay: true,
@@ -43,7 +83,6 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
                 slideHeight: 0,
                 autoPlayInterval: undefined
             };
-
             this.init();
         }
 
@@ -53,7 +92,6 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
             self.initSlideItems();
             self.onResize();
             self.initSlideItemsInitState();
-
             $(window).on('resize', this.onResize.bind(this));
             if (this.settings.autoPlay) this.initAutoPlay();
         }
@@ -68,7 +106,7 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
             })
         }
 
-        initAutoPlay(){
+        initAutoPlay() {
             let slide = this.state.slides[0];
             this.startAutoPlay(slide.autoplaySpeed + slide.animation.duration);
         }
@@ -83,8 +121,8 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
         }
 
         initSlideItems() {
-            let self = this;
-            let slides = [];
+            let self = this,
+                slides = [];
             self.$elementItems.each(function () {
                 let slide = {};
                 $.extend(true, slide, self.settings.slideSettings, $(this).data('animated-headline-item'));
@@ -94,7 +132,7 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
 
                 if (slide.animation.type === 'contratiempo') {
                     let letters = [];
-                    var characters = $(this).text().split("");
+                    let characters = $(this).text().split("");
                     slide.$elementInner.empty();
 
                     $.each(characters, function (i, el) {
@@ -108,18 +146,14 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
 
                         slide.$elementInner.append($letter);
                     });
-
                     slide.letters = letters;
                 }
-
                 slide.$element = $(this);
                 slides.push(slide);
             });
-
-            
             this.state.slides = slides;
         }
-        
+
 
         updateWidth() {
             if (this.settings.centerMode) {
@@ -172,7 +206,6 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
         showNextAutoPlaySlide(nextSlideIndex) {
             let currentSlide = this.state.slides[this.state.currentSlideIndex];
             let nextSlide = this.state.slides[nextSlideIndex];
-
             this.goToSlide({
                 currentSlide: currentSlide,
                 nextSlide: nextSlide,
@@ -181,7 +214,6 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
         }
 
         goToSlide({currentSlide, nextSlide, nextSlideIndex}) {
-            console.log(nextSlide);
             this.showSlide({
                 slide: nextSlide,
                 duration: nextSlide.animation.duration,
