@@ -1,5 +1,6 @@
 require("./animatedHeadline.scss");
 import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from './helpers.es6';
+import {setRafInterval, clearRafInterval} from './rafInterval.es6';
 
 /*
  Version: 1.0.1
@@ -11,47 +12,7 @@ import {getNextSlideIndex, getRandomArbitrary, animate, initAnimationState} from
 'use strict';
 
 
-const rafInterval = (callBack, interval) => {
-    const startTime = performance.now();
-    let lastTimeFraction = 0,
-        timePassed = 0,
-        timeFraction = 0,
-        requestID = undefined;
-
-    requestID = requestAnimationFrame(function tick(time) {
-        timePassed = time - startTime;
-        timeFraction = timePassed / interval;
-
-        requestID = requestAnimationFrame(tick);
-
-        if (timeFraction > lastTimeFraction + 1) {
-            lastTimeFraction = timeFraction;
-            callBack(requestID);
-        }
-
-    })
-}
-
-let rafIntervalId = undefined;
-
-rafInterval((id) => {
-    rafIntervalId = id;
-    console.log('testInterval');
-
-}, 2000);
-
-
-const clearRafInterval = (interval) => {
-    console.log(interval);
-
-    console.log('clearRafInterval');
-    cancelAnimationFrame(rafIntervalId)
-};
-
-setTimeout(clearRafInterval, 5000, rafIntervalId);
-
 (function ($) {
-
     class AnimatedHeadline {
         constructor(element, options) {
             let self = this;
@@ -184,23 +145,26 @@ setTimeout(clearRafInterval, 5000, rafIntervalId);
 
         startAutoPlay(interval) {
             let self = this;
-            this.state.autoPlayInterval = setInterval(function () {
-                const nextSlideIndex = getNextSlideIndex(self.state.currentSlideIndex, self.state.slides.length);
-                const slide = self.state.slides[nextSlideIndex];
-                const slideItemInterval = slide.autoplaySpeed + slide.animation.duration + slide.animation.delay;
 
-                if (interval != slideItemInterval) {
-                    self.stopAutoPlay();
-                    self.startAutoPlay(slideItemInterval);
-                }
+            this.state.autoPlayInterval = setRafInterval(() => {
+                    const nextSlideIndex = getNextSlideIndex(self.state.currentSlideIndex, self.state.slides.length);
+                    const slide = self.state.slides[nextSlideIndex];
+                    const slideItemInterval = slide.autoplaySpeed + slide.animation.duration + slide.animation.delay;
 
-                self.showNextAutoPlaySlide(nextSlideIndex);
+                    if (interval != slideItemInterval) {
+                        self.stopAutoPlay();
+                        self.startAutoPlay(slideItemInterval);
+                    }
 
-            }, interval * 1000);
+                    self.showNextAutoPlaySlide(nextSlideIndex);
+                },
+                interval * 1000,
+                id => this.state.autoPlayInterval = id
+            );
         }
 
         stopAutoPlay() {
-            clearInterval(this.state.autoPlayInterval)
+            clearRafInterval(this.state.autoPlayInterval)
         }
 
         showNextAutoPlaySlide(nextSlideIndex) {

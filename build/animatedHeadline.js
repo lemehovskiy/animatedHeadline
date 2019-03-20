@@ -86,6 +86,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _helpers = __webpack_require__(1);
 
+var _rafInterval = __webpack_require__(7);
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 __webpack_require__(2);
@@ -99,42 +101,6 @@ __webpack_require__(2);
  */
 
 'use strict';
-
-var rafInterval = function rafInterval(callBack, interval) {
-    var startTime = performance.now();
-    var lastTimeFraction = 0,
-        timePassed = 0,
-        timeFraction = 0,
-        requestID = undefined;
-
-    requestID = requestAnimationFrame(function tick(time) {
-        timePassed = time - startTime;
-        timeFraction = timePassed / interval;
-
-        requestID = requestAnimationFrame(tick);
-
-        if (timeFraction > lastTimeFraction + 1) {
-            lastTimeFraction = timeFraction;
-            callBack(requestID);
-        }
-    });
-};
-
-var rafIntervalId = undefined;
-
-rafInterval(function (id) {
-    rafIntervalId = id;
-    console.log('testInterval');
-}, 2000);
-
-var clearRafInterval = function clearRafInterval(interval) {
-    console.log(interval);
-
-    console.log('clearRafInterval');
-    cancelAnimationFrame(rafIntervalId);
-};
-
-setTimeout(clearRafInterval, 5000, rafIntervalId);
 
 (function ($) {
     var AnimatedHeadline = function () {
@@ -279,8 +245,11 @@ setTimeout(clearRafInterval, 5000, rafIntervalId);
         }, {
             key: 'startAutoPlay',
             value: function startAutoPlay(interval) {
+                var _this2 = this;
+
                 var self = this;
-                this.state.autoPlayInterval = setInterval(function () {
+
+                this.state.autoPlayInterval = (0, _rafInterval.setRafInterval)(function () {
                     var nextSlideIndex = (0, _helpers.getNextSlideIndex)(self.state.currentSlideIndex, self.state.slides.length);
                     var slide = self.state.slides[nextSlideIndex];
                     var slideItemInterval = slide.autoplaySpeed + slide.animation.duration + slide.animation.delay;
@@ -291,12 +260,14 @@ setTimeout(clearRafInterval, 5000, rafIntervalId);
                     }
 
                     self.showNextAutoPlaySlide(nextSlideIndex);
-                }, interval * 1000);
+                }, interval * 1000, function (id) {
+                    return _this2.state.autoPlayInterval = id;
+                });
             }
         }, {
             key: 'stopAutoPlay',
             value: function stopAutoPlay() {
-                clearInterval(this.state.autoPlayInterval);
+                (0, _rafInterval.clearRafInterval)(this.state.autoPlayInterval);
             }
         }, {
             key: 'showNextAutoPlaySlide',
@@ -519,6 +490,54 @@ var initAnimationState = exports.initAnimationState = {
 /***/ (function(module, exports) {
 
 // removed by extract-text-webpack-plugin
+
+/***/ }),
+/* 3 */,
+/* 4 */,
+/* 5 */,
+/* 6 */,
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var setRafInterval = exports.setRafInterval = function setRafInterval(callBack, interval, idCallback) {
+    var startTime = performance.now();
+    var lastTimeFraction = 0,
+        timePassed = 0,
+        timeFraction = 0;
+    idCallback(requestAnimationFrame(function tick(time) {
+        timePassed = time - startTime;
+        timeFraction = timePassed / interval;
+        idCallback(requestAnimationFrame(tick));
+
+        if (timeFraction > lastTimeFraction + 1) {
+            lastTimeFraction = timeFraction;
+            callBack();
+        }
+    }));
+};
+
+var clearRafInterval = exports.clearRafInterval = function clearRafInterval(id) {
+    cancelAnimationFrame(id);
+};
+
+// EXAMPLE:
+//
+// let counter = 0;
+// let testRafInterval = setRafInterval(() => {
+//         if (counter++ === 2) {
+//             clearRafInterval(testRafInterval)
+//         }
+//     },
+//     2000, id => {
+//         testRafInterval = id
+//     }
+// );
 
 /***/ })
 /******/ ]);
